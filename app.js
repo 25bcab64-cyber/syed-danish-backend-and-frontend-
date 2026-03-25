@@ -9,56 +9,39 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ===============================
-// ✅ Serve Frontend (Portfolio)
-// ===============================
+// Serve frontend
 app.use(express.static(path.join(__dirname, "public")));
 
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
-});
-
-// ===============================
-// ✅ MySQL Connection
-// ===============================
+// Railway MySQL Connection
 const db = mysql.createConnection({
-  host: "localhost",        // ⚠️ change to cloud DB when online
-  user: "root",
-  password: "tiger",
-  database: "portfolio_db"
+  host: process.env.MYSQLHOST,
+  user: process.env.MYSQLUSER,
+  password: process.env.MYSQLPASSWORD,
+  database: process.env.MYSQLDATABASE,
+  port: process.env.MYSQLPORT
 });
 
-db.connect((err) => {
-  if (err) {
-    console.log("Database error:", err);
-  } else {
-    console.log("Connected to MySQL ✅");
-  }
+db.connect(err => {
+  if (err) console.log("DB Error:", err);
+  else console.log("MySQL Connected ✅");
 });
 
-// ===============================
-// ✅ Contact API (Save messages)
-// ===============================
+// Contact API
 app.post("/contact", (req, res) => {
   const { name, email, message } = req.body;
 
   const sql = "INSERT INTO contacts (name, email, message) VALUES (?, ?, ?)";
 
-  db.query(sql, [name, email, message], (err, result) => {
+  db.query(sql, [name, email, message], (err) => {
     if (err) {
       console.log(err);
-      res.send("Error saving message ❌");
+      res.status(500).send("Database error");
     } else {
       res.send("Message saved successfully ✅");
     }
   });
 });
 
-// ===============================
-// ✅ Start Server
-// ===============================
+// Start server
 const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => {
-  console.log("Server running on port " + PORT);
-});
+app.listen(PORT, () => console.log("Server running on port " + PORT));
