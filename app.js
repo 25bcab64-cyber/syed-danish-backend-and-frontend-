@@ -10,7 +10,8 @@ app.use(cors());
 app.use(express.json());
 
 // ⭐ SERVE FRONTEND
-app.use(express.static(path.join(__dirname, "public")));
+const path = require('path');
+app.use(express.static(path.join(__dirname, 'public')));
 
 // MySQL connection
 const db = mysql.createConnection({
@@ -45,9 +46,6 @@ app.post("/contact", (req, res) => {
 });
 
 // Start server
-app.get('/', (req, res) => {
-  res.send('Backend Running 🚀');
-});
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
